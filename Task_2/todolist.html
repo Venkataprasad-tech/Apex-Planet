@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neon Glass To-Do</title>
+  <style>
+    :root {
+      --primary: rgba(168, 85, 247, 0.8);
+      --secondary: rgba(236, 72, 153, 0.8);
+      --accent: rgba(99, 102, 241, 0.8);
+      --glass: rgba(255, 255, 255, 0.15);
+      --text: #f8fafc;
+      --dark: #0f172a;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 5rem;
+    }
+    
+    .todo-container {
+      width: 100%;
+      max-width: 450px;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .todo-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        transparent 0%,
+        transparent 50%,
+        rgba(168, 85, 247, 0.1) 50%,
+        rgba(236, 72, 153, 0.1) 100%
+      );
+      transform: rotate(30deg);
+      z-index: -1;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+      font-size: 2.2rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .task-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .task-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    
+    .task-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .add-btn {
+      padding: 0 1.5rem;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .add-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3);
+    }
+    
+    .add-btn:active {
+      transform: translateY(0);
+    }
+    
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .task-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .task-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .task-checkbox {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--accent);
+      border-radius: 4px;
+      margin-right: 1rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .task-checkbox:checked {
+      background-color: var(--accent);
+    }
+    
+    .task-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 0.8rem;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .task-text {
+      flex: 1;
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .task-checkbox:checked + .task-text {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    
+    .delete-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0.2rem;
+    }
+    
+    .delete-btn:hover {
+      color: var(--secondary);
+      transform: scale(1.1);
+    }
+    
+    @media (max-width: 500px) {
+      .todo-container {
+        width: 90%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="todo-container">
+    <div class="header">
+      <h1>My Tasks</h1>
+    </div>
+    
+    <div class="input-group">
+      <input type="text" class="task-input" id="taskInput" placeholder="Add a new task...">
+      <button class="add-btn" id="addTaskButton">+</button>
+    </div>
+    
+    <ul class="task-list" id="listContainer"></ul>
+  </div>
+
+  <script>
+    const inputBox = document.getElementById('taskInput');
+    const listContainer = document.getElementById('listContainer');
+    const addButton = document.getElementById('addTaskButton');
+    
+    function addTask() {
+      if (inputBox.value.trim() === '') {
+        alert('Please enter a task');
+        return;
+      }
+      
+      const taskItem = document.createElement('li');
+      taskItem.className = 'task-item';
+      
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'task-checkbox';
+      
+      const taskText = document.createElement('span');
+      taskText.className = 'task-text';
+      taskText.textContent = inputBox.value;
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.innerHTML = '×';
+      deleteBtn.onclick = function() {
+        listContainer.removeChild(taskItem);
+      };
+      
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          taskText.style.textDecoration = 'line-through';
+          taskText.style.opacity = '0.7';
+        } else {
+          taskText.style.textDecoration = 'none';
+          taskText.style.opacity = '1';
+        }
+      });
+      
+      taskItem.appendChild(checkbox);
+      taskItem.appendChild(taskText);
+      taskItem.appendChild(deleteBtn);
+      listContainer.appendChild(taskItem);
+      
+      inputBox.value = '';
+    }
+    
+    addButton.addEventListener('click', addTask);
+    
+    inputBox.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        addTask();
+      }
+    });
+  </script>
+</body>
+</html>

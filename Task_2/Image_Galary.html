@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Image Gallery</title>
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #A29BFE;
+            --dark: #2D3436;
+            --light: #F5F6FA;
+            --accent: #6C5CE7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        
+        .gallery-container {
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        
+        .header p {
+            color: var(--dark);
+            opacity: 0.7;
+            font-size: 1.1rem;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .upload-area {
+            width: 100%;
+            max-width: 500px;
+            border: 2px dashed var(--secondary);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .upload-area p {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .upload-area span {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        #imageInput {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+        
+        .upload-btn:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(253, 121, 168, 0.4);
+        }
+        
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .gallery-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            aspect-ratio: 1/1;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-item:hover .delete-btn {
+            opacity: 1;
+        }
+        
+        .delete-btn:hover {
+            background: var(--accent);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="gallery-container">
+        <div class="header">
+            <h1>Pixel Gallery</h1>
+            <p>Upload and manage your favorite images</p>
+        </div>
+        
+        <div class="upload-section">
+            <label for="imageInput" class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & drop images here</p>
+                <span>or click to browse files</span>
+            </label>
+            <input type="file" id="imageInput" accept="image/*" capture="environment">
+            <button class="upload-btn" id="addImageButton">Upload Images</button>
+        </div>
+        
+        <div class="gallery" id="gallery"></div>
+    </div>
+
+<script>
+    const input = document.getElementById("imageInput");
+    const uploadArea = document.getElementById("uploadArea");
+    const addButton = document.getElementById("addImageButton");
+    const gallery = document.getElementById("gallery");
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#6C5CE7';
+        uploadArea.style.backgroundColor = 'rgba(108, 92, 231, 0.1)';
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = '#A29BFE';
+        uploadArea.style.backgroundColor = 'transparent';
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#A29BFE';
+        uploadArea.style.backgroundColor = 'transparent';
+        if(e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            // Don't call addImage() here - let the user click upload
+        }
+    });
+    
+    // Click on upload area just opens file dialog
+    uploadArea.addEventListener('click', () => {
+        input.click();
+    });
+    
+    // Only the upload button triggers the actual upload
+    addButton.addEventListener('click', addImage);
+    
+    // Also trigger upload when files are selected via the input
+    input.addEventListener('change', function() {
+        if(this.files.length > 0) {
+            // Don't auto-upload, let user click the button
+            // Alternatively, you could enable auto-upload by uncommenting:
+            // addImage();
+        }
+    });
+    
+    function addImage() {
+        const files = input.files;
+        
+        if(!files || files.length === 0) {
+            alert('Please select at least one image');
+            return;
+        }
+        
+        for(let file of files) {
+            if(!file.type.startsWith('image/')) continue;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Uploaded image';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.onclick = function() {
+                    galleryItem.remove();
+                };
+                
+                galleryItem.appendChild(img);
+                galleryItem.appendChild(deleteBtn);
+                gallery.appendChild(galleryItem);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Reset input
+        input.value = '';
+    }
+</script>
+</body>
+</html>
