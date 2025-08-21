@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather Forecast App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: background 1.5s ease;
+    }
+    .weather-container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      max-width: 450px;
+      width: 100%;
+    }
+    h1 {margin-bottom: 20px; color: #1a237e;}
+    #cityInput {
+      padding: 12px 20px;
+      width: 100%;
+      border-radius: 50px;
+      border: none;
+      margin-bottom: 15px;
+      outline: none;
+    }
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: linear-gradient(to right,#2196F3,#21CBF3);
+      color: #fff; font-weight: bold;
+      width: 100%;
+    }
+    #weatherResult {margin-top: 20px;}
+    .error {color: red; margin-top: 10px;}
+  </style>
+</head>
+<body>
+  <div class="weather-container">
+    <h1><i class="fas fa-cloud-sun"></i> Weather Forecast</h1>
+    <input type="text" id="cityInput" placeholder="Enter city name" />
+    <button onclick="getWeather()">Get Weather</button>
+    <div id="weatherResult"></div>
+  </div>
+
+  <script>
+    const apiKey = "e76aac71c5c6b8e2a6032e37b44f1fc5"; // put your real API key here
+
+    function getWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+      const resultDiv = document.getElementById("weatherResult");
+      resultDiv.innerHTML = "";
+
+      if (!city) {
+        resultDiv.innerHTML = `<div class="error">Please enter a city name.</div>`;
+        return;
+      }
+
+      const apiURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      fetch(apiURL)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error("City not found!");
+          }
+          return res.json();
+        })
+        .then(data => {
+          resultDiv.innerHTML = `
+            <h2>${data.name}, ${data.sys.country}</h2>
+            <p><strong>Temperature:</strong> ${Math.round(data.main.temp)}°C</p>
+            <p><strong>Condition:</strong> ${data.weather[0].description}</p>
+            <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+            <p><strong>Wind:</strong> ${data.wind.speed} m/s</p>
+          `;
+        })
+        .catch(err => {
+          resultDiv.innerHTML = `<div class="error">${err.message}</div>`;
+        });
+    }
+
+    // allow pressing Enter
+    document.getElementById("cityInput").addEventListener("keypress", e => {
+      if (e.key === "Enter") getWeather();
+    });
+  </script>
+</body>
+</html>
